@@ -141,26 +141,28 @@ bool IterativeSplineParameterization::computeTimeStamps(std::vector<TrajectorySt
     // (required to force acceleration to specified values at endpoints)
     if (trajectory.size() >= 2)
     {
-      TrajectoryState point = trajectory[1];
+      TrajectoryState point_to_insert_front(trajectory[1]);
 
       // 2nd point is 90% of p0, and 10% of p1
       const TrajectoryState point_first(trajectory[0]);
       const TrajectoryState point_second(trajectory[1]);
       for (unsigned int j = 0; j < num_joints; j++)
       {
-        point.positions[j] = 0.9 * point_first.positions[j] + 0.1 * point_second.positions[j];
+        point_to_insert_front.positions[j] = 0.9 * point_first.positions[j] + 0.1 * point_second.positions[j];
       }
-      trajectory.insert(trajectory.begin()+1, point);
+      trajectory.insert(trajectory.begin()+1, point_to_insert_front);
       num_points++;
+
+      TrajectoryState point_to_insert_back(trajectory[num_points - 2]);
 
       // 2nd-last point is 10% of p0, and 90% of p1
       const TrajectoryState point_second_to_last(trajectory[num_points - 2]);
       const TrajectoryState point_last(trajectory[num_points - 1]);
       for (unsigned int j = 0; j < num_joints; j++)
       {
-        point.positions[j] = 0.1 * point_second_to_last.positions[j] + 0.9 * point_last.positions[j];
+        point_to_insert_back.positions[j] = 0.1 * point_second_to_last.positions[j] + 0.9 * point_last.positions[j];
       }
-      trajectory.insert(trajectory.begin()+1, point);
+      trajectory.insert(trajectory.end() - 1, point_to_insert_back);
       num_points++;
     }
   }
