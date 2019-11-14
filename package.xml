@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>iterative_spline_parameterization</name>
+  <version>0.1.0</version>
+  <description>A ROS- and MoveIt-independent version of MoveIt's iterative_spline_parameterization utility</description>
+  <maintainer email="joseph.schornak@swri.org">Joseph Schornak</maintainer>
+  <license>BSD</license>
+  <license>Apache 2.0</license>
+  <author>Ken Anderson</author>
+  <author>Dave Coleman</author>
+  <author>Joseph Schornak</author>
+
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
