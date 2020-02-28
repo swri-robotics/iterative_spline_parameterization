@@ -96,10 +96,25 @@ IterativeSplineParameterization::IterativeSplineParameterization(bool add_points
 
 IterativeSplineParameterization::~IterativeSplineParameterization() = default;
 
-
 bool IterativeSplineParameterization::computeTimeStamps(std::vector<TrajectoryState>& trajectory,
                                                         const double& max_velocity,
                                                         const double& max_acceleration,
+                                                        const double max_velocity_scaling_factor,
+                                                        const double max_acceleration_scaling_factor) const
+{
+  auto num_joints = static_cast<unsigned int>(trajectory.front().positions.size());
+
+  return computeTimeStamps(trajectory,
+                           std::vector<double>(num_joints, max_velocity),
+                           std::vector<double>(num_joints, max_acceleration),
+                           max_velocity_scaling_factor,
+                           max_acceleration_scaling_factor);
+}
+
+
+bool IterativeSplineParameterization::computeTimeStamps(std::vector<TrajectoryState>& trajectory,
+                                                        const std::vector<double>& max_velocities,
+                                                        const std::vector<double>& max_accelerations,
                                                         const double max_velocity_scaling_factor,
                                                         const double max_acceleration_scaling_factor) const
 {
@@ -111,6 +126,12 @@ bool IterativeSplineParameterization::computeTimeStamps(std::vector<TrajectorySt
   double acceleration_scaling_factor = 1.0;
   unsigned int num_points = trajectory.size();
   unsigned int num_joints = trajectory.front().positions.size();
+
+  if (max_velocities.size() != num_joints || max_accelerations.size() != num_joints)
+  {
+    return false;
+  }
+
 
   // Set scaling factors
   if (max_velocity_scaling_factor > 0.0 && max_velocity_scaling_factor <= 1.0)
@@ -204,14 +225,14 @@ bool IterativeSplineParameterization::computeTimeStamps(std::vector<TrajectorySt
     t2[j].accelerations_[num_points - 1] = t2[j].final_acceleration_;
 
     // Set bounds based on inputs
-    t2[j].max_velocity_ = max_velocity;
-    t2[j].min_velocity_ = -max_velocity;
+    t2[j].max_velocity_ = max_velocities[j];
+    t2[j].min_velocity_ = -max_velocities[j];
     t2[j].max_velocity_ *= velocity_scaling_factor;
     t2[j].min_velocity_ *= velocity_scaling_factor;
 
 
-    t2[j].max_acceleration_ = max_acceleration;
-    t2[j].min_acceleration_ = -max_acceleration;
+    t2[j].max_acceleration_ = max_accelerations[j];
+    t2[j].min_acceleration_ = -max_accelerations[j];
     t2[j].max_acceleration_ *= acceleration_scaling_factor;
     t2[j].min_acceleration_ *= acceleration_scaling_factor;
 
